@@ -1,7 +1,7 @@
 use crate::device::{callback::fp_match_cb, fn_pointer, UserData};
 use crate::image::FpImage;
 use gio::Cancellable;
-use glib::translate::FromGlibPtrNone;
+use glib::translate::{FromGlibPtrContainer, FromGlibPtrNone};
 use glib::translate::{FromGlibPtrFull, ToGlibPtr};
 use glib::ObjectExt;
 use std::sync::Arc;
@@ -412,9 +412,35 @@ impl FpDevice {
     pub fn delete_print_sync() {
         unimplemented!()
     }
+
     /// List device stored prints synchronously.
-    pub fn list_prints_sync() {
-        unimplemented!()
+    /// # Example:
+    /// ```no_run
+    /// let ctx = FpContext::new();
+    /// let devices = ctx.devices();
+    /// let dev = devices.get(0).unwrap();
+    /// dev.open_sync(None).unwrap();
+    ///
+    /// let prints = dev.list_prints_sync(None).unwrap();
+    /// ```
+    pub fn list_prints_sync(&self, cancellable: Option<&Cancellable>) -> Result<Vec<FpPrint>, crate::GError> {
+            let raw_cancel = match cancellable {
+                Some(p) => p.to_glib_none().0,
+                None => std::ptr::null_mut(),
+            };
+
+            let mut raw_error = std::ptr::null_mut();
+
+            let prints = unsafe { libfprint_sys::fp_device_list_prints_sync(self.to_glib_none().0, raw_cancel.cast(), std::ptr::addr_of_mut!(raw_error)) };
+
+            if prints.is_null() {
+                return Err(unsafe { glib::Error::from_glib_full(raw_error.cast()) });
+            }
+            
+            let prints = prints.cast::<glib::ffi::GPtrArray>();
+            let prints:Vec<FpPrint> = unsafe { FromGlibPtrContainer::from_glib_none(prints) };
+
+            return Ok(prints);
     }
     /// Clear sensor storage.
     pub fn clear_storage_sync() {
