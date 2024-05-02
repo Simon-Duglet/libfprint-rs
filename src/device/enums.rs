@@ -57,3 +57,10 @@ impl FpDeviceFeature {
         }
     }
 }
+
+#[derive(Debug, Clone, Copy)]
+pub enum FpTemperature {
+    Cold = libfprint_sys::FpTemperature_FP_TEMPERATURE_COLD as isize,
+    Warm = libfprint_sys::FpTemperature_FP_TEMPERATURE_WARM as isize,
+    Hot = libfprint_sys::FpTemperature_FP_TEMPERATURE_HOT as isize,
+}

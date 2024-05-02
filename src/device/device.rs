@@ -1,7 +1,7 @@
 use glib::translate::{FromGlibPtrFull, FromGlibPtrNone, ToGlibPtr};
 
 use super::{
-    enums::{FpDeviceFeature, FpFingerStatus, FpScanType},
+    enums::{FpDeviceFeature, FpFingerStatus, FpScanType, FpTemperature},
     FpDevice,
 };
 
@@ -80,5 +80,16 @@ impl FpDevice {
     /// Whether the device is open or not
     pub fn is_open(&self) -> bool {
         unsafe { libfprint_sys::fp_device_is_open(self.to_glib_none().0) == glib::ffi::GTRUE }
+    }
+
+    /// Returns the temperature of the device
+    pub fn temperature(&self) -> FpTemperature {
+        let temperature = unsafe { libfprint_sys::fp_device_get_temperature(self.to_glib_none().0) };
+        match temperature {
+            libfprint_sys::FpTemperature_FP_TEMPERATURE_COLD => FpTemperature::Cold,
+            libfprint_sys::FpTemperature_FP_TEMPERATURE_WARM => FpTemperature::Warm,
+            libfprint_sys::FpTemperature_FP_TEMPERATURE_HOT => FpTemperature::Hot,
+            _ => panic!("Unknown temperature"),
+        }
     }
 }
