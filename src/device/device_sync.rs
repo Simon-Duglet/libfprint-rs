@@ -473,7 +473,7 @@ impl FpDevice {
     /// let dev = devices.get(0).unwrap();
     /// dev.open_sync(None).unwrap();
     ///
-    /// let cleared = dev.clear_storage_sync(None);
+    /// let cleared = dev.clear_storage_sync(None).unwrap();
     /// ```
     pub fn clear_storage_sync(&self, cancellable: Option<&Cancellable>) -> Result<bool, crate::GError> {
         let raw_cancel = match cancellable {
