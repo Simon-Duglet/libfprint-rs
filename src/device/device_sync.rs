@@ -409,8 +409,30 @@ impl FpDevice {
     }
 
     /// Delete a given print from the device.
-    pub fn delete_print_sync() {
-        unimplemented!()
+    /// # Example:
+    /// ```no_run
+    /// let ctx = FpContext::new();
+    /// let devices = ctx.devices();
+    /// let dev = devices.get(0).unwrap();
+    /// dev.open_sync(None).unwrap();
+    ///
+    /// let prints = dev.list_prints_sync(None).unwrap();
+    /// let deleted = dev.delete_print_sync(prints.first().unwrap(), None)
+    /// ```
+    pub fn delete_print_sync(&self, enrolled_print:&FpPrint, cancellable: Option<&Cancellable>) -> Result<bool, crate::GError> {
+        let raw_cancel = match cancellable {
+            Some(p) => p.to_glib_none().0,
+            None => std::ptr::null_mut(),
+        };
+
+        let mut raw_error = std::ptr::null_mut();
+        let deleted = unsafe { libfprint_sys::fp_device_delete_print_sync(self.to_glib_none().0, enrolled_print.to_glib_none().0, raw_cancel.cast(), std::ptr::addr_of_mut!(raw_error)) };
+
+        if !raw_error.is_null() {
+            return Err(unsafe { glib::Error::from_glib_full(raw_error.cast()) });
+        }
+
+        Ok(deleted == 1)
     }
 
     /// List device stored prints synchronously.
@@ -423,6 +445,7 @@ impl FpDevice {
     ///
     /// let prints = dev.list_prints_sync(None).unwrap();
     /// ```
+    /// 
     pub fn list_prints_sync(&self, cancellable: Option<&Cancellable>) -> Result<Vec<FpPrint>, crate::GError> {
             let raw_cancel = match cancellable {
                 Some(p) => p.to_glib_none().0,
