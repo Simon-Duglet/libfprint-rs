@@ -172,7 +172,7 @@ impl FpDevice {
     /// let dev = devices.get(0).unwrap();
     /// dev.open_sync(None).unwrap();
     ///
-    /// let some_print: FpPrint = foreign_function_that_gets_print();
+    /// let some_print: FpPrint = dev.list_prints_sync(None).unwrap().first().unwrap();
     /// let mut new_print = FpPrint::new(&dev); // The variable that will hold the new print
     /// let verified = dev.verify_sync(&some_print, None, Some(match_cb), Some(10), Some(&mut
     /// new_print)).unwrap();
@@ -298,7 +298,7 @@ impl FpDevice {
     /// let dev = devices.get(0).unwrap();
     /// dev.open_sync(None).unwrap();
     ///
-    /// let vec_prints: Vec<FpPrint> = function_returning_Vec_prints();
+    /// let vec_prints: Vec<FpPrint> = dev.list_prints_sync(None).unwrap();
     /// let mut new_print = FpPrint::new(&dev); // The variable that will hold the new print
     /// let print_identified = dev.identify_sync(&vec_prints, None, Some(match_cb), Some(10), Some(&mut
     /// new_print)).unwrap();
